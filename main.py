@@ -1,7 +1,7 @@
 # important libraries
 import simple_colors as sc
 import datetime
-
+from datetime import datetime
 # connecting to sql
 import mysql.connector as m
 
@@ -118,12 +118,40 @@ while True:
                 print(sc.red("Please enter a valid account number", ["bold"]))
 
     # WITHDRAW MONEY
+    # column names used user(acc_id,name,birthday,aadhar_no,address,acc_type,balance)
+    #transaction(trans_id, acc_id,trans_date,trans_amt,trans_type)
     if opt1 == 3:
-        pass
+        acc_no = int(input("Enter your account number: "))
+        cur.execute("select acc_id,balance from user where acc_id = {0}".format(acc_no))
+        acc_details = cur.fetchone()
+        if acc_details is None:
+            print("Account Number is not correct")
+        else:
+            withdrawal_amount = int(input("Enter amount to withdraw: "))
+            existing_balance  = acc_details[1]
+            if withdrawal_amount > existing_balance:
+                print("Your withdrawal amount " + str(withdrawal_amount)  + " It is more than existing balance : " + str(existing_balance))
+            else:
+                new_balance = existing_balance - withdrawal_amount
+                cur.execute("UPDATE user SET balance = {0} WHERE acc_id = {1}".format(new_balance,  acc_details[0]))
+                cur.execute("INSERT INTO transaction(acc_id,trans_date,trans_amt,trans_type) VALUES({0},'{1}',{2},'{3}')".format(acc_details[0], datetime.now(),withdrawal_amount,'withdraw'))
+                print("Your current available balance  " + str(new_balance))
+                con.commit()
 
     # DISPLAY ACCOUNT INFO
     if opt1 == 4:
-        pass
+        acc_no = int(input("Enter your account number: "))
+        cur.execute("select acc_id, name, acc_type, balance from user where acc_id = {0}".format(acc_no))
+        acc_details = cur.fetchone()
+        if acc_details is None:
+            print("Account Number is not correct")
+        else:
+            print(acc_details[0])
+            print("account number: "  + str(acc_details[0]))
+            print("name: " + acc_details[1] )
+            print("account type: " + acc_details[2])
+            print("balance: " + str(acc_details[3]))
+
 
     # VIEW ACCOUNTS
     if opt1 == 5:
