@@ -2,12 +2,14 @@
 import simple_colors as sc
 import datetime
 from datetime import datetime
+
 # connecting to sql
 import mysql.connector as m
 
 con = m.connect(username="root", password="Root@123", host="localhost")
 
 cur = con.cursor()
+
 
 if con.is_connected():
     print("CONNECTION ESTABLISHED")
@@ -122,6 +124,7 @@ while True:
     #transaction(trans_id, acc_id,trans_date,trans_amt,trans_type)
     if opt1 == 3:
         acc_no = int(input("Enter your account number: "))
+        trans_id=trans_id_generator()
         cur.execute("select acc_id,balance from user where acc_id = {0}".format(acc_no))
         acc_details = cur.fetchone()
         if acc_details is None:
@@ -134,8 +137,8 @@ while True:
             else:
                 new_balance = existing_balance - withdrawal_amount
                 cur.execute("UPDATE user SET balance = {0} WHERE acc_id = {1}".format(new_balance,  acc_details[0]))
-                cur.execute("INSERT INTO transaction(acc_id,trans_date,trans_amt,trans_type) VALUES({0},'{1}',{2},'{3}')".format(acc_details[0], datetime.now(),withdrawal_amount,'withdraw'))
-                print("Your current available balance  " + str(new_balance))
+                cur.execute("INSERT INTO transaction(acc_id,date,trans_amount,trans_type,trans_id) VALUES({0},'{1}',{2},'{3}',{4})".format(acc_details[0], datetime.now(),withdrawal_amount,'withdraw',trans_id))
+                print("Your current available balance" + str(new_balance))
                 con.commit()
 
     # DISPLAY ACCOUNT INFO
@@ -159,8 +162,43 @@ while True:
 
     # CLOSE ACCOUNTS
     if opt1 == 6:
-        pass
+        print("Are you sure you want to close account?")
+        ch1=input("Enter(y/n):")
+        if ch1 in ["y","Y"]:
+            acc_na=int(input("Enter account number:"))
+            cur.execute("DELETE FROM user WHERE acc_id={}".format(acc_na))
+            con.commit()
+            print('THANK YOU')
+        elif ch1 in ["n","N"]:
+            print("THANK YOU!")
+        else:
+            print("Wrong input. Enter again")
+        print("your account has been deleted")
+
 
     # MODIFY AN ACCOUNT
     if opt1 == 7:
-        pass
+        print('''
+        What would you wish to change:
+        1) Name
+        2) Date Of Birth
+        3) Address
+        ''')
+        ch=int(input("Enter choice(1,2,3):"))
+        acc_na1=int(input("Enter your account number:"))
+        if ch==1:
+            print("Changing Name")
+            name1 = input("Enter your new/updated name: ")
+            cur.execute("UPDATE user SET name='{0}' WHERE acc_id={1}".format(name1,acc_na1))
+            con.commit()
+        elif ch==2:
+            print('Changing Date of Birth')
+            dob1=int(input('Enter new date of birth:'))
+            cur.execute('UPDATE user SET dob={0} WHERE acc_id={1}'.format(dob1,acc_na1))
+            con.commit()
+        elif ch==3:
+            print('Changing Address')
+            add1=input("Enter new address:")
+            cur.execute("UPDATE user SET address='{0}' WHERE acc_id={1}".format(add1,acc_na1))
+            con.commit()
+        print("Account changed !!!!! if you want to see the change go see our veiw accounts ")
