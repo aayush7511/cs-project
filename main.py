@@ -178,6 +178,56 @@ def modify(ch, acc_na1):
 
 # making the GUI
 
-# window = Tk()
-#
-# heading
+window = Tk()
+
+# making the dashboard
+frame_heading = Frame(master=window)
+frame_heading.pack()
+
+lbl_heading = Label(master=frame_heading, text="WELCOME TO BANKING MANAGEMENT", font=("impact", 70), foreground="blue",
+                    background="yellow", pady=100)
+lbl_heading.pack()
+
+lbl_option = Label(master=frame_heading, text="Please click to select the options", font=("impact", 50),
+                   foreground="blue", background="yellow", padx=275,pady=50)
+lbl_option.pack()
+
+frame_options = Frame(master=window, background="yellow", padx=230)
+frame_options.pack()
+
+btn_add_acc = Button(master=frame_options, text="ADD ACCOUNT", font=("impact", 30), foreground="black",
+                     background="yellow")
+btn_add_acc.grid(row=0, column=0)
+
+btn_dep_money = Button(master=frame_options, text="DEPOSIT MONEY", font=("impact", 30), foreground="black",
+                       background="yellow")
+btn_dep_money.grid(row=0, column=1)
+
+btn_withdraw_money = Button(master=frame_options, text="WITHDRAW MONEY", font=("impact", 30), foreground="black",
+                            background="yellow")
+btn_withdraw_money.grid(row=0, column=2)
+
+btn_disp_info = Button(master=frame_options, text="DISPLAY INFO", font=("impact", 30), foreground="black",
+                       background="yellow")
+btn_disp_info.grid(row=1, column=0)
+
+btn_modify_acc = Button(master=frame_options, text="MODIFY ACCOUNT", font=("impact", 30), foreground="black",
+                        background="yellow")
+btn_modify_acc.grid(row=1, column=1)
+
+btn_chck_overdue = Button(master=frame_options, text="CHECK OVERDUE LOAN", font=("impact", 30), foreground="black",
+                          background="yellow")
+btn_chck_overdue.grid(row=1, column=2)
+
+btn_pay_instalment = Button(master=frame_options, text="PAY INSTALLMENT", font=("impact", 30), foreground="black",
+                            background="yellow")
+btn_pay_instalment.grid(row=2,column=0)
+
+btn_get_loan = Button(master=frame_options, text="GET A LOAN", font=("impact", 30), foreground="black",
+                            background="yellow")
+btn_get_loan.grid(row=2,column=1)
+
+btn_close_acc = Button(master=frame_options, text="CLOSE ACCOUNT", font=("impact", 30), foreground="black",
+                            background="yellow")
+btn_close_acc.grid(row=2,column=2)
+window.mainloop()
