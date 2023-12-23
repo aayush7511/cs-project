@@ -184,8 +184,8 @@ def modify(ch, acc_na1):
 
 
 # login page
-print(text2art('''                                                         WELCOME 
-                                                             TO 
+print(text2art('''                                                         WELCOME
+                                                             TO
                         BANKING               MANAGEMENT'''))
 
 while True:
@@ -232,3 +232,72 @@ while True:
 
             else:
                 print(sc.red("Username and password do not match", ["bold"]))
+
+##error checking for account id
+def err_acc_id():
+            a=input("Enter your account number: ")
+            if a.isdigit():
+                a=int(a)
+                cur.execute("select acc_id from user where acc_id = {0}".format(a))
+                acc_details = cur.fetchone()
+                if acc_details is not None:
+                    acc_id=a
+                else:
+                    print("Account number is not correct")
+                    err_acc_id()
+            else:
+                print("Account number is not correct")
+                err_acc_id()
+            return acc_id
+
+#error checking for name
+def err_name():
+    a=input("enter your name (name should be atleast one charecter)")
+    if len(a)>1:
+        error_name=a
+    else:
+        print("enter correct name")
+        err_name()
+    return error_name
+
+#error checking for aadhar
+def err_aadhar():
+    a=input("Enter your aadhar number(aadhar number must be 12 digits and must have only numbers):")
+    if a.isdigit():
+        a=int(a)
+        if len(a)==12:
+            error_aadhar=a
+        else:
+            print("aadhar number is not correct")
+            err_aadhar()
+    else:
+        print("aadhar number is not correct")
+        err_aadhar()
+    return error_aadhar
+
+#error checking for address
+def err_address():
+    a=input("enter your address (address must be atleast 10 characters)")
+    if len(a)>=10:
+        error_address=a
+    else:
+        print("enter correct name")
+        err_address()
+    return error_address
+#error checking for dob
+def err_dob():
+    a=input("Enter your date of birth(YYYYMMDD,DATE OF BIRTH SHOULD BE BETWEEN (1000-01-01 to 9999-12-31): ")
+    if a.isdigit():
+        if len(a)==8:
+            if ((int(a[0:4])>=1000) and (int(a[0:4])<=9999) and (int(a[4:6])>=1) and (int(a[4:6])<=12) and (int(a[6:8])>=1) and (int(a[6:8])<=31) ):
+                error_dob=a
+            else:
+                print("DATE OF BIRTH is not correct")
+                err_dob()
+        else:
+            print("DATE OF BIRTH is not correct")
+            err_dob()
+    else:
+        print("DATE OF BIRTH is not correct")
+        err_dob()
+    return error_dob
