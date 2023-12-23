@@ -2,7 +2,8 @@
 import simple_colors as sc
 import datetime
 from datetime import date as dt
-from tkinter import *
+from art import *
+import pyfiglet
 # connecting to sql
 import mysql.connector as m
 
@@ -17,7 +18,7 @@ else:
 # using the database
 cur.execute("use bank")
 
-# functions to generate sequential account and transaction numbers
+# functions to generate sequential account,branch,transaction numbers
 cur.execute("SELECT acc_id FROM user;")
 acc_vals = cur.fetchall()
 start_acc_id = acc_vals[-1][0]
@@ -43,9 +44,15 @@ def trans_id_generator():
     return start_trans_id
 
 
+dict_branch = {"Akshaynagar": 101, "Kormangala": 102, "HSR Layout": 103, "BTM Layout": 104, "Vijaya Bank Layout": 105,
+               "Indira Nagar": 106}
+
+
 # adding a new account
-def add_acc(name, dob, aadhar_no, address, acc_type):
+def add_acc(password, name, dob, aadhar_no, address, acc_type, branch_name, loan_id, pending_loan, pending_loan_amt,
+            no_credit_cards, no_debit_cards):
     acc_no = acc_id_generator()
+    branch_id = dict_branch[branch_name]
     if acc_type == "saving":
         # checking if savings account has sufficient balance to be created
         balance = float(input("Enter the balance [>10000]: "))
@@ -53,16 +60,16 @@ def add_acc(name, dob, aadhar_no, address, acc_type):
             print("Enter sufficient balance amount")
         else:
             cur.execute(
-                "INSERT INTO user VALUES( {0}, '{1}', '{2}', {3}, '{4}', {5}, '{6}')".format(
-                    acc_no, name, dob, aadhar_no, address, balance, acc_type))
+                "INSERT INTO user VALUES( {0}, {1},'{2}', '{3}', {4}, '{5}', {6}, '{7}',{8},{9})".format(
+                    acc_no, password, name, dob, aadhar_no, address, balance, acc_type, branch_id, branch_name))
 
     else:
         # all checking accounts have a balance of 1 when created
         balance = 1
 
         cur.execute(
-            "INSERT INTO user VALUES( {0}, '{1}', '{2}', {3}, '{4}', {5}, '{6}')".format(
-                acc_no, name, dob, aadhar_no, address, balance, acc_type))
+            "INSERT INTO user VALUES( {0},{1}, '{2}', '{3}', {4}, '{5}', {6}, '{7}',{8},{9})".format(
+                acc_no, password, name, dob, aadhar_no, address, balance, acc_type, branch_id, branch_name))
 
     con.commit()
 
@@ -176,58 +183,52 @@ def modify(ch, acc_na1):
     print("Account changed !!!!! if you want to see the change go see our view accounts ")
 
 
-# making the GUI
+# login page
+print(text2art('''                                                         WELCOME 
+                                                             TO 
+                        BANKING               MANAGEMENT'''))
 
-window = Tk()
+while True:
+    # try and except is used in case a string is entered instead of a number
+    try:
+        opt = int(input("[1] Login \t\t [2] Create Account \t\t [3] End Program\nOPTION NO: "))
 
-# making the dashboard
-frame_heading = Frame(master=window)
-frame_heading.pack()
+        if opt not in [1, 2, 3]:
+            print(sc.red("Enter a valid option no", ["bold"]))
+    except ValueError:
+        print(sc.red("Enter a valid option no", ["bold"]))
 
-lbl_heading = Label(master=frame_heading, text="WELCOME TO BANKING MANAGEMENT", font=("impact", 70), foreground="blue",
-                    background="yellow", pady=100)
-lbl_heading.pack()
+    if opt == 1:
+        # variables are initialized so they maintain a global scope
+        sys_password = None
+        username = None
+        password = None
+        login_auth = {"username": False}
+        # if the user a string instead of a number
+        try:
+            username = int(input("Enter the account no: "))
+        except ValueError:
+            print(sc.red("Please enter a valid account no", ["bold"]))
 
-lbl_option = Label(master=frame_heading, text="Please click to select the options", font=("impact", 50),
-                   foreground="blue", background="yellow", padx=275,pady=50)
-lbl_option.pack()
+        cur.execute("select acc_id,password from user")
+        vals = cur.fetchall()
 
-frame_options = Frame(master=window, background="yellow", padx=230)
-frame_options.pack()
+        for i in vals:
+            if i[0] == username:
+                sys_password = i[1]
+                login_auth["username"] = True
+                break
+        else:
+            print(sc.red("Please enter a valid username", ["bold"]))
 
-btn_add_acc = Button(master=frame_options, text="ADD ACCOUNT", font=("impact", 30), foreground="black",
-                     background="yellow")
-btn_add_acc.grid(row=0, column=0)
+        if login_auth["username"]:
+            password = input("Enter the password: ")
 
-btn_dep_money = Button(master=frame_options, text="DEPOSIT MONEY", font=("impact", 30), foreground="black",
-                       background="yellow")
-btn_dep_money.grid(row=0, column=1)
+            if password == sys_password:
+                print(sc.green("Access Granted", ["bold"]))
+                pass
+                # ****display all the options*****
 
-btn_withdraw_money = Button(master=frame_options, text="WITHDRAW MONEY", font=("impact", 30), foreground="black",
-                            background="yellow")
-btn_withdraw_money.grid(row=0, column=2)
 
-btn_disp_info = Button(master=frame_options, text="DISPLAY INFO", font=("impact", 30), foreground="black",
-                       background="yellow")
-btn_disp_info.grid(row=1, column=0)
-
-btn_modify_acc = Button(master=frame_options, text="MODIFY ACCOUNT", font=("impact", 30), foreground="black",
-                        background="yellow")
-btn_modify_acc.grid(row=1, column=1)
-
-btn_chck_overdue = Button(master=frame_options, text="CHECK OVERDUE LOAN", font=("impact", 30), foreground="black",
-                          background="yellow")
-btn_chck_overdue.grid(row=1, column=2)
-
-btn_pay_instalment = Button(master=frame_options, text="PAY INSTALLMENT", font=("impact", 30), foreground="black",
-                            background="yellow")
-btn_pay_instalment.grid(row=2,column=0)
-
-btn_get_loan = Button(master=frame_options, text="GET A LOAN", font=("impact", 30), foreground="black",
-                            background="yellow")
-btn_get_loan.grid(row=2,column=1)
-
-btn_close_acc = Button(master=frame_options, text="CLOSE ACCOUNT", font=("impact", 30), foreground="black",
-                            background="yellow")
-btn_close_acc.grid(row=2,column=2)
-window.mainloop()
+            else:
+                print(sc.red("Username and password do not match", ["bold"]))
